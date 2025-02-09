@@ -7,7 +7,8 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
-  final VoidCallback? onTap; // Added onTap
+  final VoidCallback? onTap;
+  final TextEditingController? controller; // Added onTap
 
   const CustomTextField({
     super.key,
@@ -16,7 +17,8 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
-    this.onTap, // Added onTap
+    this.onTap,
+    this.controller,
   });
 
   @override

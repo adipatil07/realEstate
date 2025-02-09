@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:homescout/features/auth/ui/otp_verification_page.dart';
+import 'package:homescout/features/auth/ui/password_setup_page.dart';
 import 'package:homescout/features/base/ui/base_page.dart';
 import 'package:homescout/features/enquiry/ui/enquiry_page.dart';
 import 'package:homescout/features/home/ui/home_page.dart';
@@ -21,6 +23,8 @@ class AppRoutes {
   static const String addAmenities = '/add_amenities';
   static const String base = '/base';
   static const String enquiry = '/enquiry';
+  static const String otpVerification = '/otpVerification';
+  static const String passwordSetup = '/passwordSetup';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -44,6 +48,10 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => BasePage());
       case enquiry:
         return MaterialPageRoute(builder: (_) => EnquiryPage());
+      case otpVerification:
+        return MaterialPageRoute(builder: (_) => OtpVerificationPage());
+      case passwordSetup:
+        return MaterialPageRoute(builder: (_) => PasswordSetupPage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
