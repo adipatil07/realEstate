@@ -1,5 +1,6 @@
 class Property {
   final String title;
+  final String desciption;
   final String developer;
   final String location;
   final String propertyType;
@@ -8,10 +9,14 @@ class Property {
   final String averagePrice;
   final double price;
   final double emi;
+  final String sizes;
+  final String locality;
   final List<String> imageUrls;
   final List<String> nearbyPlaces;
 
-  Property({
+  Property( {
+    required this.sizes,
+    required this.locality,
     required this.title,
     required this.developer,
     required this.location,
@@ -23,5 +28,6 @@ class Property {
     required this.emi,
     required this.imageUrls,
     required this.nearbyPlaces,
+    required this.desciption,
   });
 }

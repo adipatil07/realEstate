@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Real Estate App',
-      initialRoute: AppRoutes.login, // Default screen
+      initialRoute: AppRoutes.login,
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
       home: LoginPage(),
