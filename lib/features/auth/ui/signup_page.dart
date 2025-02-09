@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homescout/core/theme/app_colors.dart';
 import 'package:homescout/core/theme/app_text_styles.dart';
+import 'package:homescout/features/auth/bloc/auth_bloc.dart';
 import 'package:homescout/features/widgets/custom_text_field.dart';
 import 'package:homescout/routes.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
+
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+  bool _isOtpFieldVisible = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          AppColors.background, // Use background color from AppColors
+      backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
-          // Allow scrolling in case of keyboard
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,102 +42,89 @@ class SignupPage extends StatelessWidget {
               Center(
                 child: Image.asset(
                   "assets/images/signup5.webp",
-                  width: MediaQuery.of(context).size.width *
-                      0.8, // Responsive width
-                  height: 180, // Adjusted height
-                  fit:
-                      BoxFit.contain, // Ensures the image doesn't get stretched
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: 180,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 30),
-              // Text(
-              //   "Name",
-              //   style: AppTextStyles.subHeading.copyWith(
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.normal, // Lighter weight
-              //   ),
-              // ),
-              // const SizedBox(height: 8),
               CustomTextField(
                 hintText: "Enter your name",
                 prefixIcon: Icons.person,
               ),
               const SizedBox(height: 16),
-              // Text(
-              //   "Phone Number",
-              //   style: AppTextStyles.subHeading.copyWith(
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.normal, // Lighter weight
-              //   ),
-              // ),
-              // const SizedBox(height: 8),
               CustomTextField(
+                controller: _phoneController,
                 hintText: "Enter your phone number",
                 prefixIcon: Icons.phone,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
-              // Text(
-              //   "Password",
-              //   style: AppTextStyles.subHeading.copyWith(
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.normal, // Lighter weight
-              //   ),
-              // ),
-              // const SizedBox(height: 8),
-              CustomTextField(
-                hintText: "Enter your password",
-                prefixIcon: Icons.lock,
-                obscureText: true,
-                suffixIcon: Icon(Icons.visibility_off),
-              ),
-              const SizedBox(height: 16),
-              // Text(
-              //   "Confirm Password",
-              //   style: AppTextStyles.subHeading.copyWith(
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.normal, // Lighter weight
-              //   ),
-              // ),
-              // const SizedBox(height: 8),
-              CustomTextField(
-                hintText: "Confirm your password",
-                prefixIcon: Icons.lock,
-                obscureText: true,
-                suffixIcon: Icon(Icons.visibility_off),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.postsignup,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              if (_isOtpFieldVisible) ...[
+                CustomTextField(
+                  controller: _otpController,
+                  hintText: "Enter OTP",
+                  prefixIcon: Icons.lock,
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Simulate OTP verification
+
+                      Navigator.pushNamed(context, AppRoutes.passwordSetup);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: AppColors.primary,
                     ),
-                    backgroundColor:
-                        AppColors.primary, // Use primary color for the button
-                  ),
-                  child: Text(
-                    "Sign Up",
-                    style: AppTextStyles.button, // Use button text style
+                    child: Text(
+                      "Verify OTP",
+                      style: AppTextStyles.button,
+                    ),
                   ),
                 ),
-              ),
+              ] else ...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isOtpFieldVisible = true;
+                      });
+                      // Simulate sending OTP
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text("OTP sent to ${_phoneController.text}")),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: AppColors.primary,
+                    ),
+                    child: Text(
+                      "Next",
+                      style: AppTextStyles.button,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     "Already have an account?",
-                    style: AppTextStyles
-                        .body, // Use body text style for normal text
+                    style: AppTextStyles.body,
                   ),
                   TextButton(
                     onPressed: () {
@@ -136,8 +132,7 @@ class SignupPage extends StatelessWidget {
                     },
                     child: Text(
                       "Login",
-                      style: TextStyle(
-                          color: AppColors.accent), // Use accent color for link
+                      style: TextStyle(color: AppColors.accent),
                     ),
                   ),
                 ],
