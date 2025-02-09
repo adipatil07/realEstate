@@ -28,7 +28,6 @@ class _ListingPropertyDetailsPageViewState
     extends State<ListingPropertyDetailsPageView> {
   @override
   Widget build(BuildContext context) {
-    final deviceSize = MediaQuery.of(context).size;
     return BlocProvider(
       create: (context) => ListingBloc()..add(FetchListingDetailsEvent()),
       child: Scaffold(

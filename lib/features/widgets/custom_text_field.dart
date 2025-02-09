@@ -7,6 +7,7 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
+  final VoidCallback? onTap; // Added onTap
 
   const CustomTextField({
     super.key,
@@ -15,6 +16,7 @@ class CustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
+    this.onTap, // Added onTap
   });
 
   @override
@@ -52,6 +54,7 @@ class CustomTextField extends StatelessWidget {
       ),
       obscureText: obscureText,
       keyboardType: keyboardType,
+      onTap: onTap, // Added onTap
     );
   }
 }

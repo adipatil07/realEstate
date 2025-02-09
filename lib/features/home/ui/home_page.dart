@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:homescout/core/theme/app_colors.dart';
 import 'package:homescout/core/theme/app_text_styles.dart';
+import 'package:homescout/features/search/ui/search_page.dart';
 import 'package:homescout/features/widgets/custom_text_field.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -76,6 +77,13 @@ class HomePage extends StatelessWidget {
                       child: CustomTextField(
                         hintText: "Search for properties",
                         prefixIcon: Icons.search,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SearchPage()),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -88,8 +96,16 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Get Started With HomeScout",
-                        style: AppTextStyles.heading),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SearchPage()));
+                      },
+                      child: Text("Get Started With HomeScout",
+                          style: AppTextStyles.heading),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       "Find your dream home with HomeScout",
