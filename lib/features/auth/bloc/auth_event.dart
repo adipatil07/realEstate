@@ -1,19 +1,34 @@
-part of 'auth_bloc.dart';
+import 'package:equatable/equatable.dart';
 
-@immutable
-sealed class AuthEvent {}
+abstract class AuthEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
-final class AuthPhoneNumberSubmitted extends AuthEvent {
+// Send OTP
+class SendOtpEvent extends AuthEvent {
   final String phoneNumber;
-  AuthPhoneNumberSubmitted(this.phoneNumber);
+  SendOtpEvent(this.phoneNumber);
+
+  @override
+  List<Object?> get props => [phoneNumber];
 }
 
-final class AuthOtpSubmitted extends AuthEvent {
+// Verify OTP
+class VerifyOtpEvent extends AuthEvent {
+  final String verificationId;
   final String otp;
-  AuthOtpSubmitted(this.otp);
+  VerifyOtpEvent(this.verificationId, this.otp);
+
+  @override
+  List<Object?> get props => [verificationId, otp];
 }
 
-final class AuthPasswordSubmitted extends AuthEvent {
-  final String password;
-  AuthPasswordSubmitted(this.password);
+// Store User Data
+class StoreUserDataEvent extends AuthEvent {
+  final Map<String, dynamic> userData;
+  StoreUserDataEvent(this.userData);
+
+  @override
+  List<Object?> get props => [userData];
 }

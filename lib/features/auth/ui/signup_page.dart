@@ -14,8 +14,10 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
+
   bool _isOtpFieldVisible = false;
 
   @override
@@ -26,16 +28,13 @@ class _SignupPageState extends State<SignupPage> {
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 15),
               Center(
                 child: Text(
                   "Sign Up",
-                  style: AppTextStyles.heading.copyWith(
-                    fontSize: 24,
-                  ),
+                  style: AppTextStyles.heading.copyWith(fontSize: 24),
                 ),
               ),
               const SizedBox(height: 20),
@@ -49,6 +48,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
               const SizedBox(height: 30),
               CustomTextField(
+                controller: _nameController,
                 hintText: "Enter your name",
                 prefixIcon: Icons.person,
               ),
@@ -68,78 +68,74 @@ class _SignupPageState extends State<SignupPage> {
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Simulate OTP verification
-
-                      Navigator.pushNamed(context, AppRoutes.passwordSetup);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: AppColors.primary,
-                    ),
-                    child: Text(
-                      "Verify OTP",
-                      style: AppTextStyles.button,
-                    ),
-                  ),
+                _buildButton(
+                  text: "Verify OTP",
+                  onPressed: () {
+                    if (_otpController.text.isEmpty ||
+                        _otpController.text.length < 4) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("Please enter a valid OTP")),
+                      );
+                      return;
+                    }
+                    Navigator.pushNamed(context, AppRoutes.passwordSetup);
+                  },
                 ),
               ] else ...[
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isOtpFieldVisible = true;
-                      });
-                      // Simulate sending OTP
+                _buildButton(
+                  text: "Next",
+                  onPressed: () {
+                    if (_phoneController.text.length != 10) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content:
-                                Text("OTP sent to ${_phoneController.text}")),
+                                Text("Enter a valid 10-digit phone number")),
                       );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: AppColors.primary,
-                    ),
-                    child: Text(
-                      "Next",
-                      style: AppTextStyles.button,
-                    ),
-                  ),
+                      return;
+                    }
+                    setState(() {
+                      _isOtpFieldVisible = true;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text("OTP sent to ${_phoneController.text}")),
+                    );
+                  },
                 ),
               ],
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Already have an account?",
-                    style: AppTextStyles.body,
-                  ),
+                  Text("Already have an account?", style: AppTextStyles.body),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Login",
-                      style: TextStyle(color: AppColors.accent),
-                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Login",
+                        style: TextStyle(color: AppColors.accent)),
                   ),
                 ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildButton({required String text, required VoidCallback onPressed}) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: AppColors.primary,
+        ),
+        child: Text(text, style: AppTextStyles.button),
       ),
     );
   }

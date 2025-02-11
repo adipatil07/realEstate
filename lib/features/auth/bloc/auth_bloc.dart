@@ -1,29 +1,69 @@
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-part 'auth_event.dart';
-part 'auth_state.dart';
+import 'auth_event.dart';
+import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   AuthBloc() : super(AuthInitial()) {
-    on<AuthPhoneNumberSubmitted>((event, emit) {
-      // Simulate sending OTP
-      emit(AuthOtpSent());
-    });
+    on<SendOtpEvent>(_onSendOtp);
+    on<VerifyOtpEvent>(_onVerifyOtp);
+    on<StoreUserDataEvent>(_onStoreUserData);
+  }
 
-    on<AuthOtpSubmitted>((event, emit) {
-      // Simulate OTP verification
-      // if (event.otp == "123456") {
-      //   emit(AuthOtpVerified());
-      // } else {
-      //   emit(AuthFailure("Invalid OTP"));
-      // }
-      emit(AuthOtpVerified());
-    });
+  // Send OTP
+  Future<void> _onSendOtp(SendOtpEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      await _auth.verifyPhoneNumber(
+        phoneNumber: event.phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential);
+          emit(OtpVerifiedState());
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          emit(AuthError(e.message ?? "Verification Failed"));
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          emit(OtpSentState(verificationId));
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
 
-    on<AuthPasswordSubmitted>((event, emit) {
-      // Simulate password setup
-      emit(AuthSuccess());
-    });
+  // Verify OTP
+  Future<void> _onVerifyOtp(
+      VerifyOtpEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: event.verificationId,
+        smsCode: event.otp,
+      );
+      await _auth.signInWithCredential(credential);
+      emit(OtpVerifiedState());
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  // Store User Data in Firestore
+  Future<void> _onStoreUserData(
+      StoreUserDataEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    try {
+      String uid = _auth.currentUser!.uid;
+      await _firestore.collection('users').doc(uid).set(event.userData);
+      emit(UserDataStored());
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
   }
 }
