@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "621847434657",
+    "project_id": "realestate-1418d",
+    "storage_bucket": "realestate-1418d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621847434657:android:c26539a759c2b9483be7e0",
+        "android_client_info": {
+          "package_name": "com.example.homescout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoAGt1pj99Hq23bmZY-4Jw7-Oj2BHh8PE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
