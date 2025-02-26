@@ -217,7 +217,7 @@ class SellingPageView extends StatelessWidget {
                     ),
                     const SizedBox(
                         height:
-                            80), // 🔹 Extra space so button doesn't overlap with content
+                            80),
                   ],
                 ),
               ),
