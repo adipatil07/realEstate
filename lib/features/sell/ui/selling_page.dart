@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homescout/core/theme/app_colors.dart';
 import 'package:homescout/core/theme/app_text_styles.dart';
 import 'package:homescout/core/utils/constants.dart';
+import 'package:homescout/features/bloc/property_submission_bloc.dart';
 import 'package:homescout/features/property_details/ui/property_details_page.dart';
 import 'package:homescout/features/sell/bloc/selling_page_bloc.dart';
 import 'package:homescout/features/widgets/app_button.dart';
@@ -27,11 +28,12 @@ class SellingPageView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-          backgroundColor: AppColors.background,
-          title: Text(
-            "Sell Property",
-            style: AppTextStyles.appBarTitle,
-          )),
+        backgroundColor: AppColors.background,
+        title: Text(
+          "Sell Property",
+          style: AppTextStyles.appBarTitle,
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -67,9 +69,15 @@ class SellingPageView extends StatelessWidget {
                                       : AppColors.primary,
                                 ),
                                 onPressed: () {
-                                  context
-                                      .read<SellingPageBloc>()
-                                      .add(SelectPropertyType("Residential"));
+                                  context.read<SellingPageBloc>().add(
+                                        SelectPropertyType("Residential"),
+                                      );
+                                  context.read<PropertySubmissionBloc>().add(
+                                        UpdatePropertyData(
+                                          propertyType: "Residential",
+                                          commercialSubType: null, // Reset
+                                        ),
+                                      );
                                 },
                                 child: Text("Residential"),
                               );
@@ -95,9 +103,15 @@ class SellingPageView extends StatelessWidget {
                                       : AppColors.primary,
                                 ),
                                 onPressed: () {
-                                  context
-                                      .read<SellingPageBloc>()
-                                      .add(SelectPropertyType("Commercial"));
+                                  context.read<SellingPageBloc>().add(
+                                        SelectPropertyType("Commercial"),
+                                      );
+                                  context.read<PropertySubmissionBloc>().add(
+                                        UpdatePropertyData(
+                                          propertyType: "Commercial",
+                                          residentialSubType: null, // Reset
+                                        ),
+                                      );
                                 },
                                 child: Text("Commercial"),
                               );
@@ -149,6 +163,14 @@ class SellingPageView extends StatelessWidget {
                                         onPressed: () {
                                           context.read<SellingPageBloc>().add(
                                               SelectCommercialSubType(subType));
+
+                                          context
+                                              .read<PropertySubmissionBloc>()
+                                              .add(
+                                                UpdatePropertyData(
+                                                  commercialSubType: subType,
+                                                ),
+                                              );
                                         },
                                         child: Text(subType),
                                       ),
@@ -170,7 +192,7 @@ class SellingPageView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Select Resedential Property Type",
+                                "Select Residential Property Type",
                                 style:
                                     AppTextStyles.small.copyWith(fontSize: 14),
                               ),
@@ -202,6 +224,14 @@ class SellingPageView extends StatelessWidget {
                                           context.read<SellingPageBloc>().add(
                                               SelectResedentialSubType(
                                                   subType));
+
+                                          context
+                                              .read<PropertySubmissionBloc>()
+                                              .add(
+                                                UpdatePropertyData(
+                                                  residentialSubType: subType,
+                                                ),
+                                              );
                                         },
                                         child: Text(subType),
                                       ),
@@ -215,9 +245,7 @@ class SellingPageView extends StatelessWidget {
                         return const SizedBox.shrink();
                       },
                     ),
-                    const SizedBox(
-                        height:
-                            80),
+                    const SizedBox(height: 80),
                   ],
                 ),
               ),

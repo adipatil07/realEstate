@@ -1,15 +1,107 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:homescout/core/theme/app_colors.dart';
-import 'package:homescout/core/theme/app_text_styles.dart';
+import 'package:homescout/features/bloc/property_submission_bloc.dart';
 import 'package:homescout/features/review_selling_property/ui/property_review_page.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:homescout/features/prize_details_selling/bloc/prize_details_bloc.dart';
+import 'package:homescout/core/theme/app_colors.dart';
+import 'package:homescout/core/theme/app_text_styles.dart';
 import 'package:homescout/features/widgets/app_button.dart';
+import 'package:homescout/features/prize_details_selling/bloc/prize_details_bloc.dart';
+import 'package:homescout/services/firebase_service.dart';
 
-class AddPhotosPage extends StatelessWidget {
+class AddPhotosPage extends StatefulWidget {
   const AddPhotosPage({super.key});
+
+  @override
+  _AddPhotosPageState createState() => _AddPhotosPageState();
+}
+
+class _AddPhotosPageState extends State<AddPhotosPage> {
+  final List<File> _selectedImages = [];
+  final FirebaseService _firebaseService = FirebaseService();
+  bool _isUploading = false;
+
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? pickedFile = await ImagePicker().pickImage(source: source);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImages.add(File(pickedFile.path));
+      });
+    }
+  }
+
+  Future<void> _uploadImagesAndSubmit() async {
+    if (_selectedImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please select at least one image.")),
+      );
+      return;
+    }
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      List<String> imageUrls =
+          await _firebaseService.uploadImages(_selectedImages);
+
+      // 🔹 Store Image URLs in PropertySubmissionBloc
+      context.read<PropertySubmissionBloc>().add(
+            UpdatePropertyData(images: imageUrls),
+          );
+
+      context.read<PropertySubmissionBloc>().add(SubmitProperty());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Property successfully uploaded!")),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ReviewPage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error uploading images: $e")),
+      );
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text("Take a photo"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text("Choose from gallery"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +121,7 @@ class AddPhotosPage extends StatelessWidget {
           Expanded(
             child: BlocBuilder<PrizeDetailsBloc, PrizeDetailsState>(
               builder: (context, state) {
-                List<File> selectedImages = [];
+                List<File> selectedImages = _selectedImages;
                 if (state is PrizeDetailsUpdated) {
                   selectedImages = state.selectedImages;
                 }
@@ -39,9 +131,7 @@ class AddPhotosPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          _showImageSourceDialog(context);
-                        },
+                        onTap: _showImageSourceDialog,
                         child: DottedBorderContainer(
                           child: selectedImages.isNotEmpty
                               ? const Text(
@@ -55,7 +145,7 @@ class AddPhotosPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       if (selectedImages.isNotEmpty)
-                         SizedBox(
+                        SizedBox(
                           height: 100,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
@@ -81,9 +171,9 @@ class AddPhotosPage extends StatelessWidget {
                                     right: 0,
                                     child: GestureDetector(
                                       onTap: () {
-                                        context
-                                            .read<PrizeDetailsBloc>()
-                                            .add(RemoveImageEvent(index));
+                                        setState(() {
+                                          _selectedImages.removeAt(index);
+                                        });
                                       },
                                       child: Container(
                                         decoration: const BoxDecoration(
@@ -110,56 +200,15 @@ class AddPhotosPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: AppButton(
-              child: const Text(
-                "Continue",
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReviewPage(),
-                  ),
-                );
-              },
+              onPressed: _uploadImagesAndSubmit,
+              child: _isUploading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Text("Continue",
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _showImageSourceDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Take a photo"),
-                onTap: () {
-                  context
-                      .read<PrizeDetailsBloc>()
-                      .add(PickImageEvent(ImageSource.camera));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text("Choose from gallery"),
-                onTap: () {
-                  context
-                      .read<PrizeDetailsBloc>()
-                      .add(PickImageEvent(ImageSource.gallery));
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

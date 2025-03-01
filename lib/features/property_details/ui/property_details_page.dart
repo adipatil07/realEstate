@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:homescout/core/theme/app_colors.dart';
 import 'package:homescout/core/theme/app_text_styles.dart';
 import 'package:homescout/core/utils/constants.dart';
+import 'package:homescout/features/bloc/property_submission_bloc.dart';
 import 'package:homescout/features/prize_details_selling/ui/prize_details_page.dart';
 import 'package:homescout/features/property_details/bloc/property_details_bloc.dart';
 import 'package:homescout/features/widgets/app_button.dart';
@@ -28,6 +29,45 @@ class PropertyDetailsView extends StatefulWidget {
 }
 
 class _PropertyDetailsViewState extends State<PropertyDetailsView> {
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _buildingController = TextEditingController();
+  final TextEditingController _localityController = TextEditingController();
+  final TextEditingController _builtUpAreaController = TextEditingController();
+  final TextEditingController _carpetAreaController = TextEditingController();
+  final TextEditingController _totalFloorsController = TextEditingController();
+  final TextEditingController _propertyFloorController =
+      TextEditingController();
+  final TextEditingController _ageOfPropertyController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    _cityController.dispose();
+    _buildingController.dispose();
+    _localityController.dispose();
+    _builtUpAreaController.dispose();
+    _carpetAreaController.dispose();
+    _totalFloorsController.dispose();
+    _propertyFloorController.dispose();
+    _ageOfPropertyController.dispose();
+    super.dispose();
+  }
+
+  void _updatePropertyDetails() {
+    context.read<PropertySubmissionBloc>().add(
+          UpdatePropertyData(
+            city: _cityController.text,
+            buildingName: _buildingController.text,
+            locality: _localityController.text,
+            builtUpArea: double.tryParse(_builtUpAreaController.text) ?? 0,
+            carpetArea: double.tryParse(_carpetAreaController.text) ?? 0,
+            totalFloors: int.tryParse(_totalFloorsController.text) ?? 0,
+            propertyFloor: int.tryParse(_propertyFloorController.text) ?? 0,
+            ageOfProperty: int.tryParse(_ageOfPropertyController.text),
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     Future<void> pickDate(BuildContext context) async {
@@ -42,6 +82,10 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
         context
             .read<PropertyDetailsBloc>()
             .add(SelectCompletionDate(pickedDate));
+
+        context.read<PropertySubmissionBloc>().add(
+              UpdatePropertyData(completionDate: pickedDate),
+            );
       }
     }
 
@@ -87,12 +131,20 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          CustomTextField(hintText: "City"),
+                          CustomTextField(
+                            hintText: "City",
+                            controller: _cityController,
+                          ),
                           const SizedBox(height: 8),
                           CustomTextField(
-                              hintText: "Building / Project / Society"),
+                            hintText: "Building / Project / Society",
+                            controller: _buildingController,
+                          ),
                           const SizedBox(height: 8),
-                          CustomTextField(hintText: "Locality"),
+                          CustomTextField(
+                            hintText: "Locality",
+                            controller: _localityController,
+                          ),
                         ],
                       ),
                     ),
@@ -144,6 +196,13 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                               SelectPropertyProfessionInformation(
                                                   "Ready to Move"),
                                             );
+                                        context
+                                            .read<PropertySubmissionBloc>()
+                                            .add(
+                                              UpdatePropertyData(
+                                                  possessionStatus:
+                                                      "Ready to Move"),
+                                            );
                                       },
                                       child: Text("Ready to Move"),
                                     );
@@ -177,6 +236,13 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                         context.read<PropertyDetailsBloc>().add(
                                             SelectPropertyProfessionInformation(
                                                 "Under Construction"));
+                                        context
+                                            .read<PropertySubmissionBloc>()
+                                            .add(
+                                              UpdatePropertyData(
+                                                  possessionStatus:
+                                                      "Under Construction"),
+                                            );
                                       },
                                       child: Text(
                                         "Under Construction",
@@ -200,6 +266,7 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                   hintText: "Age in Years",
                                   prefixIcon: Icons.calendar_today,
                                   keyboardType: TextInputType.number,
+                                  controller: _ageOfPropertyController,
                                 );
                               }
 
@@ -211,6 +278,7 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                   onTap: () => pickDate(context),
                                   child: AbsorbPointer(
                                     child: TextField(
+                                      // controller: ,
                                       decoration: InputDecoration(
                                         hintText: state.completionDate != null
                                             ? "${state.completionDate!.day}-${state.completionDate!.month}-${state.completionDate!.year}"
@@ -271,6 +339,10 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                               .read<PropertyDetailsBloc>()
                                               .add(SelectLocationHubType(
                                                   subType));
+                                          context
+                                              .read<PropertySubmissionBloc>()
+                                              .add(UpdatePropertyData(
+                                                  locationHubType: subType));
                                         },
                                         child: Text(subType),
                                       ),
@@ -302,11 +374,17 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                           const SizedBox(
                             height: 8,
                           ),
-                          CustomTextField(hintText: "Built Up Area"),
+                          CustomTextField(
+                            hintText: "Built Up Area",
+                            controller: _builtUpAreaController,
+                          ),
                           const SizedBox(
                             height: 8,
                           ),
-                          CustomTextField(hintText: "Carpet Area"),
+                          CustomTextField(
+                            hintText: "Carpet Area",
+                            controller: _carpetAreaController,
+                          ),
                           const SizedBox(
                             height: 8,
                           ),
@@ -348,6 +426,10 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                               .read<PropertyDetailsBloc>()
                                               .add(
                                                   SelectOwnershipType(subType));
+                                          context
+                                              .read<PropertySubmissionBloc>()
+                                              .add(UpdatePropertyData(
+                                                  ownershipType: subType));
                                         },
                                         child: Text(subType),
                                       ),
@@ -409,6 +491,10 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                           context
                                               .read<PropertyDetailsBloc>()
                                               .add(SelectRoomType(subType));
+                                          context
+                                              .read<PropertySubmissionBloc>()
+                                              .add(UpdatePropertyData(
+                                                  roomType: subType));
                                         },
                                         child: Text(subType),
                                       ),
@@ -459,6 +545,10 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                                               .read<PropertyDetailsBloc>()
                                               .add(
                                                   SelectFurnishedType(subType));
+                                          context
+                                              .read<PropertySubmissionBloc>()
+                                              .add(UpdatePropertyData(
+                                                  furnishedCondition: subType));
                                         },
                                         child: Text(subType),
                                       ),
@@ -477,11 +567,17 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                           const SizedBox(
                             height: 8,
                           ),
-                          CustomTextField(hintText: "Total Floors"),
+                          CustomTextField(
+                            hintText: "Total Floors",
+                            controller: _totalFloorsController,
+                          ),
                           const SizedBox(
                             height: 8,
                           ),
-                          CustomTextField(hintText: "Your Floor"),
+                          CustomTextField(
+                            hintText: "Your Floor",
+                            controller: _propertyFloorController,
+                          ),
                         ],
                       ),
                     ),
@@ -498,6 +594,7 @@ class _PropertyDetailsViewState extends State<PropertyDetailsView> {
                 style: AppTextStyles.button,
               ),
               onPressed: () {
+                _updatePropertyDetails();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
