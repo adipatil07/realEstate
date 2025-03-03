@@ -5,6 +5,6 @@ sealed class ReviewPropertyEvent {}
 
 class LoadReviewProperty extends ReviewPropertyEvent {
   final File? image;
-
-  LoadReviewProperty({this.image});
+  final String propertyId;
+  LoadReviewProperty( {required this.propertyId,this.image});
 }

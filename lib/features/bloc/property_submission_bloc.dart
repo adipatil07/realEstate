@@ -5,15 +5,20 @@ import 'package:homescout/services/firebase_service.dart';
 part 'property_submission_event.dart';
 part 'property_submission_state.dart';
 
-class PropertySubmissionBloc extends Bloc<PropertySubmissionEvent, PropertySubmissionState> {
-  CreatePropertyModel _property = CreatePropertyModel.empty(); // Initial empty property
+class PropertySubmissionBloc
+    extends Bloc<PropertySubmissionEvent, PropertySubmissionState> {
+  CreatePropertyModel _property =
+      CreatePropertyModel.empty(); // Initial empty property
 
   PropertySubmissionBloc() : super(PropertySubmissionInitial()) {
     on<UpdatePropertyData>((event, emit) {
       _property = _property.copyWith(
+        id: event.propertyId ?? _property.id,
         propertyType: event.propertyType ?? _property.propertyType,
-        commercialSubType: event.commercialSubType ?? _property.commercialSubType,
-        residentialSubType: event.residentialSubType ?? _property.residentialSubType,
+        commercialSubType:
+            event.commercialSubType ?? _property.commercialSubType,
+        residentialSubType:
+            event.residentialSubType ?? _property.residentialSubType,
         city: event.city ?? _property.city,
         buildingName: event.buildingName ?? _property.buildingName,
         locality: event.locality ?? _property.locality,
@@ -28,7 +33,8 @@ class PropertySubmissionBloc extends Bloc<PropertySubmissionEvent, PropertySubmi
         carpetArea: event.carpetArea ?? _property.carpetArea,
         ownershipType: event.ownershipType ?? _property.ownershipType,
         roomType: event.roomType ?? _property.roomType,
-        furnishedCondition: event.furnishedCondition ?? _property.furnishedCondition,
+        furnishedCondition:
+            event.furnishedCondition ?? _property.furnishedCondition,
         totalFloors: event.totalFloors ?? _property.totalFloors,
         propertyFloor: event.propertyFloor ?? _property.propertyFloor,
         amenities: event.amenities ?? _property.amenities,

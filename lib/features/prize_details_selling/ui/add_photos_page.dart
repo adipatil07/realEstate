@@ -44,13 +44,16 @@ class _AddPhotosPageState extends State<AddPhotosPage> {
     });
 
     try {
-      List<String> imageUrls =
-          await _firebaseService.uploadImages(_selectedImages);
+      final propertyBlocState = context.read<PropertySubmissionBloc>().state;
+      if (propertyBlocState is! PropertyDataUpdated || propertyBlocState.property.id.isEmpty) {
+        throw Exception("No property found to update!");
+      }
+      String propertyId = propertyBlocState.property.id;
 
-      // 🔹 Store Image URLs in PropertySubmissionBloc
-      context.read<PropertySubmissionBloc>().add(
-            UpdatePropertyData(images: imageUrls),
-          );
+      List<String> imageUrls = await _firebaseService.uploadImages(_selectedImages);
+
+      context.read<PropertySubmissionBloc>().add(UpdatePropertyData(images: imageUrls),
+      );
 
       context.read<PropertySubmissionBloc>().add(SubmitProperty());
 
@@ -60,7 +63,7 @@ class _AddPhotosPageState extends State<AddPhotosPage> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ReviewPage()),
+        MaterialPageRoute(builder: (context) => ReviewPage( propertyId: propertyId,)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

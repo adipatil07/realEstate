@@ -5,14 +5,34 @@ import 'package:homescout/core/theme/app_text_styles.dart';
 import 'package:homescout/features/review_selling_property/bloc/review_property_bloc.dart';
 import 'package:homescout/features/widgets/app_button.dart';
 
-class ReviewPage extends StatelessWidget {
-  const ReviewPage({super.key});
+class ReviewPage extends StatefulWidget {
+  final String propertyId;
+  const ReviewPage({
+    super.key,
+    required this.propertyId,
+  });
+
+  @override
+  State<ReviewPage> createState() => _ReviewPageState();
+}
+
+class _ReviewPageState extends State<ReviewPage> {
+  @override
+  void initState() {
+    super.initState();
+    print("🔍 Dispatching LoadReviewProperty for ID: ${widget.propertyId}");
+
+    // ✅ Dispatch event to fetch property from Firestore
+    context
+        .read<ReviewPropertyBloc>()
+        .add(LoadReviewProperty(propertyId: widget.propertyId));
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ReviewPropertyBloc()..add(LoadReviewProperty()), // ✅ Dispatch event
+      create: (context) => ReviewPropertyBloc()
+        ..add(LoadReviewProperty(propertyId: widget.propertyId)),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -26,32 +46,35 @@ class ReviewPage extends StatelessWidget {
         ),
         body: BlocBuilder<ReviewPropertyBloc, ReviewPropertyState>(
           builder: (context, state) {
+            print("🖥️ [UI] State Received: $state");
             if (state is ReviewPropertyLoading) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state is! ReviewPropertyLoaded) {
-              return const Center(
-                child: Text("No data available"),
-              ); 
-            }
-
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildSuccessMessage(),
-                  const SizedBox(height: 16),
-                  _buildPropertyDetails(state),
-                  const Spacer(),
-                  AppButton(
-                    child: const Text(
-                      "Continue",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+            } else if (state is ReviewPropertyLoaded) {
+              print("✅ [UI] Rendering Property: ${state.propertyId}");
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    _buildSuccessMessage(),
+                    const SizedBox(height: 16),
+                    _buildPropertyDetails(state),
+                    const Spacer(),
+                    AppButton(
+                      child: const Text(
+                        "Continue",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      onPressed: () {},
                     ),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            );
+                  ],
+                ),
+              );
+            } else if (state is ReviewPropertyError) {
+              return Center(
+                  child: Text("Error While Loading Property",
+                      style: TextStyle(color: Colors.red)));
+            }
+            return SizedBox.shrink();
           },
         ),
       ),
@@ -101,7 +124,8 @@ class ReviewPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               image: state.imagePath != null
                   ? DecorationImage(
-                      image: FileImage(state.imagePath!),
+                      image: NetworkImage(
+                          state.imagePath! as String), // ✅ Corrected
                       fit: BoxFit.cover,
                     )
                   : null,

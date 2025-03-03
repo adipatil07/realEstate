@@ -4,6 +4,7 @@ abstract class PropertySubmissionEvent {}
 
 class UpdatePropertyData extends PropertySubmissionEvent {
   final String? propertyType;
+  final String? propertyId;
   final String? commercialSubType;
   final String? residentialSubType;
   final String? city;
@@ -28,6 +29,7 @@ class UpdatePropertyData extends PropertySubmissionEvent {
   final String? description;
 
   UpdatePropertyData({
+    this.propertyId, 
     this.propertyType,
     this.commercialSubType,
     this.residentialSubType,

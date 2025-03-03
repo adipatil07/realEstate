@@ -229,6 +229,7 @@ class SellingPageView extends StatelessWidget {
                                               .read<PropertySubmissionBloc>()
                                               .add(
                                                 UpdatePropertyData(
+                                                  propertyId: DateTime.now().millisecondsSinceEpoch.toString(),
                                                   residentialSubType: subType,
                                                 ),
                                               );

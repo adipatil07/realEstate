@@ -5,6 +5,7 @@ import 'package:homescout/features/auth/ui/login_page.dart';
 import 'package:homescout/features/bloc/property_submission_bloc.dart';
 import 'package:homescout/features/prize_details_selling/bloc/prize_details_bloc.dart';
 import 'package:homescout/features/property_details/bloc/property_details_bloc.dart';
+import 'package:homescout/features/review_selling_property/bloc/review_property_bloc.dart';
 import 'package:homescout/features/sell/bloc/selling_page_bloc.dart';
 import 'package:homescout/routes.dart';
 
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => SellingPageBloc()),
         BlocProvider(create: (context) => PrizeDetailsBloc()),
         BlocProvider(create: (context) => PropertyDetailsBloc()),
+        BlocProvider(create: (context) => ReviewPropertyBloc()),
       ],
       child: MaterialApp(
         title: 'Real Estate App',

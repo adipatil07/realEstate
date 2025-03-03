@@ -13,7 +13,8 @@ class FirebaseService {
 
     for (File image in images) {
       try {
-        String fileName = "property_images/${DateTime.now().millisecondsSinceEpoch}.jpg";
+        String fileName =
+            "property_images/${DateTime.now().millisecondsSinceEpoch}.jpg";
         TaskSnapshot snapshot = await _storage.ref(fileName).putFile(image);
         String downloadUrl = await snapshot.ref.getDownloadURL();
         downloadUrls.add(downloadUrl);
@@ -24,10 +25,9 @@ class FirebaseService {
 
     return downloadUrls;
   }
-  
+
   Future<void> addProperty(CreatePropertyModel property) async {
     try {
-      // 🔹 Ensure ID is generated if empty
       String docId = property.id.isNotEmpty
           ? property.id
           : _firestore.collection('properties').doc().id;
@@ -40,6 +40,21 @@ class FirebaseService {
       print("Property successfully added to Firestore!");
     } catch (e) {
       print("Error adding property: $e");
+      throw Exception("Firestore Error: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchPropertyById(String propertyId) async {
+    try {
+      DocumentSnapshot snapshot = await _firestore.collection('properties').doc(propertyId).get();
+
+      if (snapshot.exists) {
+        return snapshot.data() as Map<String, dynamic>;
+      } else {
+        return null; // Property not found
+      }
+    } catch (e) {
+      print("Error fetching property: $e");
       throw Exception("Firestore Error: $e");
     }
   }
